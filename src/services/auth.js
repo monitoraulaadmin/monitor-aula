@@ -29,6 +29,7 @@ export const AuthService = {
   lastVisitedClass: null,
   adminListenerUnsubscribe: null,
   authStateUnsubscribe: null,
+  isManualLogout: false, // Flag para distinguir logout manual de sesión expirada
 
   // Save credentials to localStorage
   saveCredentials(email, password) {
@@ -267,6 +268,9 @@ export const AuthService = {
       if (this.authStateUnsubscribe) {
         this.authStateUnsubscribe();
       }
+
+      // Marcar como logout manual ANTES de signOut
+      this.isManualLogout = true;
 
       // Clear saved credentials on logout
       this.clearSavedCredentials();
