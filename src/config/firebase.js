@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, setPersistence, browserLocalPersistence, connectAuthEmulator } from 'firebase/auth';
+import { initializeAuth, indexedDBLocalPersistence, browserLocalPersistence, connectAuthEmulator } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
@@ -21,18 +21,13 @@ console.log('🔍 Firebase Config:', {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 
-// Configurar autenticación con persistencia local
-const auth = getAuth(app);
+// Inicializa Auth con persistencia permanente para evitar session timeouts
+// indexedDBLocalPersistence es más robusto que browserLocalPersistence
+const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+});
 
-// Ensure authentication state persists across browser sessions and devices
-// This is critical for keeping users logged in
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log('✅ Persistencia de autenticación configurada correctamente');
-  })
-  .catch((error) => {
-    console.error('❌ Error configurando persistencia:', error);
-  });
+console.log('✅ Persistencia de autenticación configurada: indexedDB + localStorage');
 
 // Configurar Realtime Database
 const db = getDatabase(app);
