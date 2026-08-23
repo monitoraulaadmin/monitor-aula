@@ -59,14 +59,18 @@ class App {
       }
     });
 
-    // Monitorizar Autenticación (evita "falsa carga")
+    // Monitorizar Autenticación - Solo navegar a login si es logout manual
     AuthService.subscribeToAuthChanges((user) => {
       if (!user) {
         console.warn('⚠️ CAMBIO DE ESTADO: Usuario desconectado');
-        // Solo mostrar overlay si ya estamos en una vista protegida (evitar mostrar en login inicial)
-        if (this.initialNavigationDone && this.currentView !== this.views.login) {
-          this.statusOverlay.show('auth');
+        // Si fue logout manual, navegar a login sin mostrar overlay
+        if (AuthService.isManualLogout) {
+          console.log('🚪 Logout manual detectado - navegando a login');
+          AuthService.isManualLogout = false;
+          this.navegarA('login');
         }
+        // Si es un logout no intencional (sesión perdida), NO mostrar overlay
+        // porque la sesión nunca debe caducar en esta app
       } else {
         console.log('✅ CAMBIO DE ESTADO: Usuario conectado');
         if (!this.isOffline) {
@@ -91,8 +95,8 @@ class App {
         <main id="main-content"></main>
         <!-- Controles globales de tamaño de fuente -->
         <div id="font-size-controls" style="display:none; position:fixed; bottom:1rem; right:1rem; z-index:1100; display:flex; flex-direction:column; gap:0.5rem;">
-          <button data-action="increase" style="width:40px;height:40px;border-radius:50%;background:var(--primary-color);color:#fff;border:none;cursor:pointer;font-size:var(--font-size-lg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.2);" title="Aumentar tamaño de letra">A+</button>
-          <button data-action="decrease" style="width:40px;height:40px;border-radius:50%;background:var(--primary-color);color:#fff;border:none;cursor:pointer;font-size:var(--font-size-base);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,0.2);" title="Reducir tamaño de letra">A-</button>
+          <button data-action="increase" style="width:40px;height:40px;border-radius:50%;background:var(--primary-color);color:#fff;border:none;cursor:pointer;font-size:var(--font-size-lg);display[...]
+          <button data-action="decrease" style="width:40px;height:40px;border-radius:50%;background:var(--primary-color);color:#fff;border:none;cursor:pointer;font-size:var(--font-size-base);displ[...]
         </div>
       `;
 
